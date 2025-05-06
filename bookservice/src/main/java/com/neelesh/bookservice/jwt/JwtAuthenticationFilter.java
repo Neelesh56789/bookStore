@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -39,6 +42,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Validate token and username
         if (username != null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);  // Load user details
+
+            String role = jwtService.extractClaims(token).get("role", String.class);
+            GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
+            List<GrantedAuthority> authorities = List.of(authority);
 
             // Check if user details are valid and token is valid
             if (userDetails != null && jwtService.isTokenValid(userDetails, token)) {

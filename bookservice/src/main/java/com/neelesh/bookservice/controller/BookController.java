@@ -3,6 +3,7 @@ package com.neelesh.bookservice.controller;
 import com.neelesh.bookservice.model.Book;
 import com.neelesh.bookservice.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,12 +32,14 @@ public class BookController {
         bookService.deleteBook(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/get/id/{id}")
     public Book getById(@PathVariable Long id)
     {
         return bookService.getBookById(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/getAll")
     public List<Book> getAll(){
         return bookService.getAllBooks();

@@ -16,8 +16,7 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "tCt7VSUioBALpNTOf0FtQwilFSClXwZUjuYkADodl2fZ4Pdk7h2xPf8yR3lyMYwa\n" +
-            "qgbbxLMeVT7S737q5qvs5A==";
+    private static final String SECRET_KEY = "tCt7VSUioBALpNTOf0FtQwilFSClXwZUjuYkADodl2fZ4Pdk7h2xPf8yR3lyMYwaqgbbxLMeVT7S737q5qvs5A==";
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
 
     Date now = new Date();

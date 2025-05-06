@@ -4,8 +4,14 @@ import com.neelesh.onlinebookstore.dto.AuthResponse;
 import com.neelesh.onlinebookstore.dto.LoginRequest;
 import com.neelesh.onlinebookstore.dto.RegisterRequest;
 import com.neelesh.onlinebookstore.entity.User;
+import com.neelesh.onlinebookstore.jwt.JwtService;
 import com.neelesh.onlinebookstore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,27 +21,33 @@ import java.util.Optional;
 public class AuthServiceImp implements AuthService {
 
     @Autowired
-    UserRepository userRepository;
+    private AuthenticationManager authenticationManager;
+
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private JwtService jwtService;
 
+    @Autowired
+    private UserRepository userRepository;
 
-    @Override
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public AuthResponse login(LoginRequest loginRequest) {
+        // 1. Authenticate using AuthenticationManager
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()
+                )
+        );
 
-        Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
-        if(!user.isPresent())
-        {
-            return new AuthResponse("User doesn't exist");
-        }
-        User existing_user = user.get();
-        boolean passwordMatched = passwordEncoder.matches(loginRequest.getPassword(), existing_user.getPassword());
-        if(!passwordMatched)
-        {
-            return new AuthResponse("Password is wrong");
-        }
-        return new AuthResponse("User successfully logged in.");
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String token = jwtService.generateToken(userDetails);
+
+        // 4. Return the token
+        return new AuthResponse(token);
     }
+
 
     @Override
     public AuthResponse register(RegisterRequest registerRequest) {
@@ -48,6 +60,7 @@ public class AuthServiceImp implements AuthService {
         new_user.setEmail(registerRequest.getEmail());
         new_user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         new_user.setUsername(registerRequest.getUsername());
+        new_user.setRole(registerRequest.getRole());
         userRepository.save(new_user);
         return new AuthResponse("User successfully created");
     }

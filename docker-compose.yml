@@ -1,0 +1,56 @@
+services:
+  auth-service:
+    build:
+        context: ./onlinebookstore
+    container_name: onlinebookstore
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/auth_service_db
+      SPRING_DATASOURCE_USERNAME: codingninjas
+      SPRING_DATASOURCE_PASSWORD: password
+
+    depends_on:
+      - postgres
+    networks:
+      - book-network
+
+  book-service:
+    build:
+        context: ./bookservice
+    container_name: bookservice
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/book_service_db
+      SPRING_DATASOURCE_USERNAME: codingninjas
+      SPRING_DATASOURCE_PASSWORD: password
+
+    depends_on:
+      - postgres
+    networks:
+      - book-network
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: codingninjas
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - book-network
+
+networks:
+  book-network:
+
+volumes:
+  pgdata:
+
+
+
+
+

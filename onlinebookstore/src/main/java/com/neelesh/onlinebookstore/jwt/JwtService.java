@@ -16,15 +16,15 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "tCt7VSUioBALpNTOf0FtQwilFSClXwZUjuYkADodl2fZ4Pdk7h2xPf8yR3lyMYwa\n" +
-            "qgbbxLMeVT7S737q5qvs5A==";
+    private static final String SECRET_KEY = "tCt7VSUioBALpNTOf0FtQwilFSClXwZUjuYkADodl2fZ4Pdk7h2xPf8yR3lyMYwaqgbbxLMeVT7S737q5qvs5A==";
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
 
     Date now = new Date();
     Date expiration = new Date(now.getTime() + EXPIRATION_TIME);
-    String generateToken(User user){
+    public String generateToken(UserDetails userDetails){
         return Jwts.builder()
-                .setSubject(user.getEmail())
+                .setSubject(userDetails.getUsername())
+                .claim("role", userDetails.getAuthorities().iterator().next().getAuthority())
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
